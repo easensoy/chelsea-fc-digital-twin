@@ -1,0 +1,945 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Chelsea FC Digital Twin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 1.5rem;
+        padding: 1.5rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .widget {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .widget:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .widget-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .widget-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f4e79;
+        margin: 0;
+    }
+
+    .widget-action {
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: color 0.2s ease;
+    }
+
+    .widget-action:hover {
+        color: #1f4e79;
+    }
+
+    .hero-section {
+        background: linear-gradient(135deg, #1f4e79 0%, #3d85c6 100%);
+        color: white;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+    }
+
+    .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .hero-stat {
+        text-align: center;
+    }
+
+    .hero-stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        display: block;
+    }
+
+    .hero-stat-label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .live-match-banner {
+        background: linear-gradient(90deg, #ff4444, #ff6b6b);
+        color: white;
+        padding: 1rem;
+        text-align: center;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.8; }
+        100% { opacity: 1; }
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+    }
+
+    .stat-card {
+        text-align: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #1f4e79;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f4e79;
+        display: block;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .match-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .match-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border-left: 4px solid transparent;
+    }
+
+    .match-item.win { border-left-color: #28a745; }
+    .match-item.draw { border-left-color: #ffc107; }
+    .match-item.loss { border-left-color: #dc3545; }
+
+    .match-opponent {
+        font-weight: 600;
+        color: #343a40;
+    }
+
+    .match-score {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .match-date {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    .performer-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .performer-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        background: #f8f9fa;
+        border-radius: 6px;
+    }
+
+    .performer-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .performer-number {
+        background: #1f4e79;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .performer-details {
+        flex: 1;
+    }
+
+    .performer-name {
+        font-weight: 600;
+        color: #343a40;
+        margin: 0;
+    }
+
+    .performer-position {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    .performer-rating {
+        background: #28a745;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .alert-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .alert-item {
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        border-radius: 6px;
+        border-left: 4px solid;
+    }
+
+    .alert-item.high { 
+        background: #f8d7da; 
+        border-left-color: #dc3545; 
+        color: #721c24;
+    }
+
+    .alert-item.medium { 
+        background: #fff3cd; 
+        border-left-color: #ffc107; 
+        color: #856404;
+    }
+
+    .alert-item.low { 
+        background: #d1ecf1; 
+        border-left-color: #17a2b8; 
+        color: #0c5460;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin-top: 1rem;
+    }
+
+    .loading-chart {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 300px;
+        color: #6c757d;
+    }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .action-button {
+        background: #1f4e79;
+        color: white;
+        border: none;
+        padding: 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        text-align: center;
+        font-weight: 600;
+        transition: background-color 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .action-button:hover {
+        background: #155a8a;
+        color: white;
+        text-decoration: none;
+    }
+
+    .formation-preview {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        text-align: center;
+        margin-top: 1rem;
+    }
+
+    .formation-stat {
+        padding: 0.5rem;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+
+    .formation-stat-value {
+        font-weight: 700;
+        color: #1f4e79;
+        display: block;
+    }
+
+    .formation-stat-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+            padding: 1rem;
+        }
+
+        .hero-title {
+            font-size: 2rem;
+        }
+
+        .hero-stats {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Live Match Banner (shown only during live matches) -->
+    <div id="liveMatchBanner" class="live-match-banner" style="display: none;">
+        <i class="fas fa-circle" style="color: #ff0000; animation: blink 1s infinite;"></i>
+        <span id="liveMatchText">LIVE: Chelsea vs Arsenal - 45'</span>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <h1 class="hero-title">Tactical Command Centre</h1>
+        <p class="hero-subtitle">Real-time performance analytics and strategic insights for Chelsea FC</p>
+        
+        <div class="hero-stats" id="heroStats">
+            <div class="hero-stat">
+                <span class="hero-stat-value" id="seasonWins">--</span>
+                <span class="hero-stat-label">Season Wins</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-value" id="winRate">--%</span>
+                <span class="hero-stat-label">Win Rate</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-value" id="goalsScored">--</span>
+                <span class="hero-stat-label">Goals Scored</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-value" id="cleanSheets">--</span>
+                <span class="hero-stat-label">Clean Sheets</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Widgets Grid -->
+    <div class="dashboard-grid">
+        <!-- Live Match Status Widget -->
+        <div class="widget" id="liveMatchWidget">
+            <div class="widget-header">
+                <h3 class="widget-title">Match Status</h3>
+                <button class="widget-action" onclick="refreshWidget('liveMatchWidget')">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+            <div class="widget-content" id="liveMatchContent">
+                <div class="loading-chart">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Loading match status...
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Matches Widget -->
+        <div class="widget" id="recentMatchesWidget">
+            <div class="widget-header">
+                <h3 class="widget-title">Recent Matches</h3>
+                <button class="widget-action" onclick="refreshWidget('recentMatchesWidget')">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+            <div class="widget-content" id="recentMatchesContent">
+                <div class="loading-chart">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Loading recent matches...
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Performers Widget -->
+        <div class="widget" id="topPerformersWidget">
+            <div class="widget-header">
+                <h3 class="widget-title">Top Performers</h3>
+                <button class="widget-action" onclick="refreshWidget('topPerformersWidget')">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+            <div class="widget-content" id="topPerformersContent">
+                <div class="loading-chart">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Loading top performers...
+                </div>
+            </div>
+        </div>
+
+        <!-- Formation Analysis Widget -->
+        <div class="widget" id="formationWidget">
+            <div class="widget-header">
+                <h3 class="widget-title">Formation Analysis</h3>
+                <button class="widget-action" onclick="refreshWidget('formationWidget')">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+            <div class="widget-content" id="formationContent">
+                <div class="loading-chart">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Loading formation analysis...
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Chart Widget -->
+        <div class="widget" style="grid-column: span 2;">
+            <div class="widget-header">
+                <h3 class="widget-title">Performance Trends</h3>
+                <div>
+                    <select id="chartPeriod" onchange="updatePerformanceChart()" class="chart-period-select">
+                        <option value="7">Last 7 days</option>
+                        <option value="30" selected>Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                    </select>
+                    <button class="widget-action" onclick="refreshWidget('performanceChart')">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Squad Fitness Widget -->
+        <div class="widget" id="fitnessWidget">
+            <div class="widget-header">
+                <h3 class="widget-title">Squad Fitness</h3>
+                <button class="widget-action" onclick="refreshWidget('fitnessWidget')">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+            <div class="widget-content" id="fitnessContent">
+                <div class="loading-chart">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Loading fitness data...
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Alerts Widget -->
+        <div class="widget" id="alertsWidget">
+            <div class="widget-header">
+                <h3 class="widget-title">Performance Alerts</h3>
+                <button class="widget-action" onclick="refreshWidget('alertsWidget')">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+            <div class="widget-content" id="alertsContent">
+                <div class="loading-chart">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Loading alerts...
+                </div>
+            </div>
+        </div>
+
+        <!-- Tactical Insights Widget -->
+        <div class="widget" id="tacticalWidget">
+            <div class="widget-header">
+                <h3 class="widget-title">Tactical Insights</h3>
+                <button class="widget-action" onclick="refreshWidget('tacticalWidget')">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+            <div class="widget-content" id="tacticalContent">
+                <div class="loading-chart">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Loading tactical insights...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <a href="/formations/" class="action-button">
+            <i class="fas fa-chess-board"></i>
+            Formation Analysis
+        </a>
+        <a href="/players/" class="action-button">
+            <i class="fas fa-users"></i>
+            Player Performance
+        </a>
+        <a href="/matches/" class="action-button">
+            <i class="fas fa-futbol"></i>
+            Match Centre
+        </a>
+        <a href="/data-centre/" class="action-button">
+            <i class="fas fa-database"></i>
+            Export Data
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% load static %}{% static 'dashboard.js' %}"></script>
+<script>
+    let dashboardCharts = {};
+    let refreshInterval;
+
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeDashboard();
+        setupAutoRefresh();
+    });
+
+    function initializeDashboard() {
+        loadDashboardWidgets();
+        setupPerformanceChart();
+        checkLiveMatches();
+    }
+
+    function loadDashboardWidgets() {
+        showLoading('Loading dashboard...');
+        
+        apiClient.get('/api/dashboard/widgets/')
+        .then(response => {
+            const widgets = response.data.widgets;
+            
+            updateHeroStats(widgets.overview_stats);
+            updateLiveMatchWidget(widgets.live_match_status);
+            updateRecentMatchesWidget(widgets.recent_matches);
+            updateTopPerformersWidget(widgets.top_performers);
+            updateFormationWidget(widgets.formation_summary);
+            updateFitnessWidget(widgets.fitness_overview);
+            updateAlertsWidget(widgets.performance_alerts);
+            updateTacticalWidget(widgets.tactical_insights);
+            
+            hideLoading();
+        })
+        .catch(error => {
+            console.error('Error loading dashboard widgets:', error);
+            showToast('Failed to load dashboard data', 'error');
+            hideLoading();
+        });
+    }
+
+    function updateHeroStats(overviewStats) {
+        if (!overviewStats || !overviewStats.stats) return;
+        
+        const stats = overviewStats.stats;
+        document.getElementById('seasonWins').textContent = stats.wins || '0';
+        document.getElementById('winRate').textContent = stats.win_rate + '%' || '0%';
+        document.getElementById('goalsScored').textContent = stats.goals_scored || '0';
+        document.getElementById('cleanSheets').textContent = stats.clean_sheets || '0';
+    }
+
+    function updateLiveMatchWidget(liveMatchData) {
+        const content = document.getElementById('liveMatchContent');
+        
+        if (liveMatchData && liveMatchData.status === 'live') {
+            const match = liveMatchData.match;
+            content.innerHTML = `
+                <div class="live-match-info">
+                    <div class="match-header">
+                        <span class="live-indicator">LIVE</span>
+                        <span class="match-time">${match.match_time}'</span>
+                    </div>
+                    <div class="match-score">
+                        <span class="team">Chelsea</span>
+                        <span class="score">${match.score}</span>
+                        <span class="team">${match.opponent}</span>
+                    </div>
+                    <div class="match-details">
+                        <p><strong>Formation:</strong> ${match.formation}</p>
+                        <p><strong>Venue:</strong> ${match.venue}</p>
+                    </div>
+                    <div class="recent-events">
+                        <h4>Recent Events</h4>
+                        ${match.recent_events.map(event => `
+                            <div class="event-item">
+                                <span class="event-time">${event.minute}'</span>
+                                <span class="event-text">${event.description}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            showLiveMatchBanner(match);
+        } else {
+            content.innerHTML = `
+                <div class="no-live-match">
+                    <i class="fas fa-clock" style="font-size: 2rem; color: #6c757d; margin-bottom: 1rem;"></i>
+                    <p>No live matches</p>
+                    ${liveMatchData && liveMatchData.match ? `
+                        <div class="next-match">
+                            <h4>Next Match</h4>
+                            <p><strong>${liveMatchData.match.opponent}</strong></p>
+                            <p>${new Date(liveMatchData.match.datetime).toLocaleDateString('en-GB')}</p>
+                            <p>${liveMatchData.match.venue}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+    }
+
+    function updateRecentMatchesWidget(recentMatchesData) {
+        const content = document.getElementById('recentMatchesContent');
+        
+        if (!recentMatchesData || !recentMatchesData.matches) {
+            content.innerHTML = '<p>No recent matches available</p>';
+            return;
+        }
+        
+        const matchesList = recentMatchesData.matches.map(match => `
+            <li class="match-item ${match.result.toLowerCase()}">
+                <div>
+                    <div class="match-opponent">${match.is_home ? 'vs' : 'at'} ${match.opponent}</div>
+                    <div class="match-date">${match.date}</div>
+                </div>
+                <div class="match-score">${match.score}</div>
+            </li>
+        `).join('');
+        
+        content.innerHTML = `<ul class="match-list">${matchesList}</ul>`;
+    }
+
+    function updateTopPerformersWidget(topPerformersData) {
+        const content = document.getElementById('topPerformersContent');
+        
+        if (!topPerformersData || !topPerformersData.performers) {
+            content.innerHTML = '<p>No performance data available</p>';
+            return;
+        }
+        
+        const performersList = topPerformersData.performers.map(performer => `
+            <li class="performer-item">
+                <div class="performer-info">
+                    <div class="performer-number">${performer.squad_number}</div>
+                    <div class="performer-details">
+                        <div class="performer-name">${performer.name}</div>
+                        <div class="performer-position">${performer.position}</div>
+                    </div>
+                </div>
+                <div class="performer-rating">${performer.average_rating}</div>
+            </li>
+        `).join('');
+        
+        content.innerHTML = `<ul class="performer-list">${performersList}</ul>`;
+    }
+
+    function updateFormationWidget(formationData) {
+        const content = document.getElementById('formationContent');
+        
+        if (!formationData || !formationData.summary) {
+            content.innerHTML = '<p>No formation data available</p>';
+            return;
+        }
+        
+        const summary = formationData.summary;
+        content.innerHTML = `
+            <div class="formation-summary">
+                <div class="formation-preview">
+                    <div class="formation-stat">
+                        <span class="formation-stat-value">${summary.most_used_formation}</span>
+                        <span class="formation-stat-label">Most Used</span>
+                    </div>
+                    <div class="formation-stat">
+                        <span class="formation-stat-value">${summary.most_used_count}</span>
+                        <span class="formation-stat-label">Times Used</span>
+                    </div>
+                    <div class="formation-stat">
+                        <span class="formation-stat-value">${summary.most_effective_win_rate}%</span>
+                        <span class="formation-stat-label">Best Win Rate</span>
+                    </div>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <strong>Most Effective:</strong> ${summary.most_effective_formation}
+                </div>
+            </div>
+        `;
+    }
+
+    function updateFitnessWidget(fitnessData) {
+        const content = document.getElementById('fitnessContent');
+        
+        if (!fitnessData || !fitnessData.summary) {
+            content.innerHTML = '<p>No fitness data available</p>';
+            return;
+        }
+        
+        const summary = fitnessData.summary;
+        content.innerHTML = `
+            <div class="fitness-summary">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-value">${summary.total_players}</span>
+                        <span class="stat-label">Total Players</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value">${summary.available_players}</span>
+                        <span class="stat-label">Available</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value">${summary.injured_players}</span>
+                        <span class="stat-label">Injured</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value">${summary.availability_percentage}%</span>
+                        <span class="stat-label">Availability</span>
+                    </div>
+                </div>
+                ${fitnessData.alerts && fitnessData.alerts.injured_players.length > 0 ? `
+                    <div style="margin-top: 1rem;">
+                        <h4>Injured Players</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            ${fitnessData.alerts.injured_players.map(player => `
+                                <li style="padding: 0.25rem 0; color: #dc3545;">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    ${player.name} (${player.position})
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    function updateAlertsWidget(alertsData) {
+        const content = document.getElementById('alertsContent');
+        
+        if (!alertsData || !alertsData.alerts || alertsData.alerts.length === 0) {
+            content.innerHTML = `
+                <div style="text-align: center; color: #28a745;">
+                    <i class="fas fa-check-circle" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                    <p>No active alerts</p>
+                </div>
+            `;
+            return;
+        }
+        
+        const alertsList = alertsData.alerts.slice(0, 5).map(alert => `
+            <li class="alert-item ${alert.priority}">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-${alert.priority === 'high' ? 'exclamation-triangle' : alert.priority === 'medium' ? 'exclamation-circle' : 'info-circle'}"></i>
+                    <span>${alert.message}</span>
+                </div>
+            </li>
+        `).join('');
+        
+        content.innerHTML = `<ul class="alert-list">${alertsList}</ul>`;
+    }
+
+    function updateTacticalWidget(tacticalData) {
+        const content = document.getElementById('tacticalContent');
+        
+        if (!tacticalData || !tacticalData.insights || tacticalData.insights.length === 0) {
+            content.innerHTML = '<p>No tactical insights available</p>';
+            return;
+        }
+        
+        const insightsList = tacticalData.insights.map(insight => `
+            <div style="margin-bottom: 1rem; padding: 0.75rem; background: #f8f9fa; border-radius: 6px;">
+                <div style="font-weight: 600; color: #1f4e79; margin-bottom: 0.25rem;">
+                    ${insight.category}
+                </div>
+                <div style="font-size: 0.9rem; color: #495057;">
+                    ${insight.insight}
+                </div>
+            </div>
+        `).join('');
+        
+        content.innerHTML = insightsList;
+    }
+
+    function setupPerformanceChart() {
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        
+        dashboardCharts.performance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Goals Scored',
+                    data: [],
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Goals Conceded',
+                    data: [],
+                    borderColor: '#dc3545',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Goals'
+                        }
+                    }
+                }
+            }
+        });
+        
+        updatePerformanceChart();
+    }
+
+    function updatePerformanceChart() {
+        const period = document.getElementById('chartPeriod').value;
+        
+        apiClient.get(`/api/dashboard/charts/?period=${period}`)
+        .then(response => {
+            const chartData = response.data.charts.performance_overview;
+            
+            dashboardCharts.performance.data.labels = chartData.data.labels;
+            dashboardCharts.performance.data.datasets[0].data = chartData.data.datasets[0].data;
+            dashboardCharts.performance.data.datasets[1].data = chartData.data.datasets[1].data;
+            dashboardCharts.performance.update();
+        })
+        .catch(error => {
+            console.error('Error updating performance chart:', error);
+        });
+    }
+
+    function showLiveMatchBanner(match) {
+        const banner = document.getElementById('liveMatchBanner');
+        const text = document.getElementById('liveMatchText');
+        
+        text.textContent = `LIVE: Chelsea vs ${match.opponent} - ${match.match_time}'`;
+        banner.style.display = 'block';
+    }
+
+    function checkLiveMatches() {
+        // Check for live matches every 30 seconds
+        setInterval(() => {
+            apiClient.get('/api/live-tracking/')
+            .then(response => {
+                const liveMatches = response.data.matches;
+                
+                if (liveMatches.length > 0) {
+                    const liveMatch = liveMatches[0];
+                    showLiveMatchBanner(liveMatch);
+                } else {
+                    document.getElementById('liveMatchBanner').style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error checking live matches:', error);
+            });
+        }, 30000);
+    }
+
+    function setupAutoRefresh() {
+        // Refresh dashboard every 5 minutes
+        refreshInterval = setInterval(() => {
+            loadDashboardWidgets();
+        }, 300000);
+    }
+
+    function refreshWidget(widgetId) {
+        // Individual widget refresh logic
+        switch(widgetId) {
+            case 'performanceChart':
+                updatePerformanceChart();
+                break;
+            default:
+                loadDashboardWidgets();
+                break;
+        }
+        
+        showToast('Widget refreshed', 'success');
+    }
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', function() {
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Chelsea FC Digital Twin - Advanced tactical analysis and player performance platform">
+    <meta name="keywords" content="Chelsea FC, football, tactics, analytics, performance, digital twin">
+    <title>{% block title %}Chelsea FC Digital Twin{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% load static %}{% static 'chelsea-logo.png' %}">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% load static %}{% static 'base.css' %}">
+    <link rel="stylesheet" href="{% load static %}{% static 'dashboard.css' %}">
+    <link rel="stylesheet" href="{% load static %}{% static 'tactical-board.css' %}">
+    <link rel="stylesheet" href="{% load static %}{% static 'responsive.css' %}">
+    
+    <!-- External CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="chelsea-theme">
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <img src="{% load static %}{% static 'chelsea-logo.png' %}" alt="Chelsea FC" class="logo">
+                <span class="brand-text">Digital Twin</span>
+            </div>
+            
+            <div class="navbar-menu" id="navbarMenu">
+                <a href="/" class="navbar-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/players/" class="navbar-item {% if request.resolver_match.url_name == 'players' %}active{% endif %}">
+                    <i class="fas fa-users"></i>
+                    <span>Players</span>
+                </a>
+                <a href="/matches/" class="navbar-item {% if request.resolver_match.url_name == 'matches' %}active{% endif %}">
+                    <i class="fas fa-futbol"></i>
+                    <span>Matches</span>
+                </a>
+                <a href="/formations/" class="navbar-item {% if request.resolver_match.url_name == 'formations' %}active{% endif %}">
+                    <i class="fas fa-chess-board"></i>
+                    <span>Formations</span>
+                </a>
+                <a href="/analytics/" class="navbar-item {% if request.resolver_match.url_name == 'analytics' %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="/data-centre/" class="navbar-item {% if request.resolver_match.url_name == 'data_centre' %}active{% endif %}">
+                    <i class="fas fa-database"></i>
+                    <span>Data Centre</span>
+                </a>
+            </div>
+            
+            <div class="navbar-actions">
+                <div class="user-menu">
+                    {% if user.is_authenticated %}
+                        <div class="dropdown">
+                            <button class="user-button" onclick="toggleUserMenu()">
+                                <i class="fas fa-user-circle"></i>
+                                <span>{{ user.username }}</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="dropdown-menu" id="userMenu">
+                                <a href="/admin/" class="dropdown-item">
+                                    <i class="fas fa-cog"></i>
+                                    Admin Panel
+                                </a>
+                                <a href="/powerbi-guide/" class="dropdown-item">
+                                    <i class="fas fa-chart-bar"></i>
+                                    Power BI Guide
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <button onclick="logout()" class="dropdown-item logout-btn">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="/login/" class="login-btn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Login
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Chelsea FC Digital Twin</h3>
+                <p>Advanced tactical analysis and performance monitoring platform for Chelsea Football Club.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="/">Dashboard</a></li>
+                    <li><a href="/players/">Players</a></li>
+                    <li><a href="/formations/">Formations</a></li>
+                    <li><a href="/analytics/">Analytics</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Tools</h4>
+                <ul>
+                    <li><a href="/data-centre/">Data Centre</a></li>
+                    <li><a href="/powerbi-guide/">Power BI Guide</a></li>
+                    <li><a href="/admin/">Admin Panel</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>System Status</h4>
+                <div class="system-status">
+                    <div class="status-indicator" id="systemStatus">
+                        <span class="status-dot online"></span>
+                        <span>System Online</span>
+                    </div>
+                    <div class="last-updated" id="lastUpdated">
+                        Last updated: <span id="updateTime">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2024 Chelsea Football Club. Digital Twin Platform. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading tactical data...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chart.js/4.4.0/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js"></script>
+    
+    <!-- Core JavaScript -->
+    <script src="{% load static %}{% static 'constants.js' %}"></script>
+    <script src="{% load static %}{% static 'utils.js' %}"></script>
+    <script src="{% load static %}{% static 'api-client.js' %}"></script>
+    <script src="{% load static %}{% static 'main.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+
+    <script>
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            updateSystemStatus();
+            
+            // Update system status every 5 minutes
+            setInterval(updateSystemStatus, 300000);
+        });
+
+        // Global functions
+        function toggleMobileMenu() {
+            const menu = document.getElementById('navbarMenu');
+            menu.classList.toggle('mobile-active');
+        }
+
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenu');
+            menu.classList.toggle('show');
+        }
+
+        function logout() {
+            showLoading('Logging out...');
+            
+            fetch('/logout/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect || '/login/';
+                } else {
+                    showToast('Logout failed', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Logout error:', error);
+                showToast('Logout failed', 'error');
+            })
+            .finally(() => {
+                hideLoading();
+            });
+        }
+
+        function updateSystemStatus() {
+            fetch('/api/dashboard/widgets/')
+            .then(response => {
+                const statusDot = document.querySelector('.status-dot');
+                const statusText = document.querySelector('.system-status span');
+                const updateTime = document.getElementById('updateTime');
+                
+                if (response.ok) {
+                    statusDot.className = 'status-dot online';
+                    statusText.textContent = 'System Online';
+                } else {
+                    statusDot.className = 'status-dot offline';
+                    statusText.textContent = 'System Issues';
+                }
+                
+                updateTime.textContent = new Date().toLocaleTimeString('en-GB');
+            })
+            .catch(error => {
+                const statusDot = document.querySelector('.status-dot');
+                const statusText = document.querySelector('.system-status span');
+                
+                statusDot.className = 'status-dot offline';
+                statusText.textContent = 'Connection Error';
+            });
+        }
+
+        // Close dropdown menus when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.getElementById('userMenu');
+            const userButton = document.querySelector('.user-button');
+            
+            if (userMenu && !userButton.contains(event.target)) {
+                userMenu.classList.remove('show');
+            }
+        });
+
+        // Handle navigation highlighting
+        function updateNavigation() {
+            const currentPath = window.location.pathname;
+            const navItems = document.querySelectorAll('.navbar-item');
+            
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === currentPath) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // Call on page load and navigation
+        document.addEventListener('DOMContentLoaded', updateNavigation);
+        window.addEventListener('popstate', updateNavigation);
+    </script>
+</body>
+</html>
