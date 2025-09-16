@@ -1,0 +1,161 @@
+{% extends 'base_modern.html' %}
+
+{% block title %}Home - Chelsea FC Digital Twin{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-gradient-to-br from-chelsea-950 via-chelsea-900 to-chelsea-800 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="text-center">
+            <div class="mb-8">
+                <div class="inline-flex items-center justify-center w-24 h-24 bg-white rounded-full shadow-lg">
+                    <i class="fas fa-futbol text-chelsea-950 text-4xl"></i>
+                </div>
+            </div>
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                Chelsea FC Digital Twin
+            </h1>
+            <p class="text-xl md:text-2xl text-chelsea-200 mb-8 max-w-4xl mx-auto">
+                Professional Football Analytics & Visualisation Platform for the Modern Game
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/football-field/"
+                   class="bg-white text-chelsea-950 px-8 py-3 rounded-lg font-semibold hover:bg-chelsea-50 transition duration-300 transform hover:scale-105">
+                    <i class="fas fa-play mr-2"></i>
+                    Explore Football Field
+                </a>
+                <a href="/analytics/"
+                   class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-chelsea-950 transition duration-300">
+                    <i class="fas fa-chart-bar mr-2"></i>
+                    View Analytics
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Grid -->
+<div class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Platform Features</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Everything you need to analyse, manage, and optimise your football team's performance
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Football Field -->
+            <div class="group">
+                <a href="/football-field/" class="block">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center mb-4">
+                            <i class="fas fa-futbol text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Interactive Field</h3>
+                        <p class="text-gray-600">
+                            Professional football field visualisation with player positioning and formation analysis
+                        </p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Analytics -->
+            <div class="group">
+                <a href="/analytics/" class="block">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center mb-4">
+                            <i class="fas fa-chart-line text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Analytics Dashboard</h3>
+                        <p class="text-gray-600">
+                            Comprehensive data analytics with real-time insights and performance metrics
+                        </p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Player Profiles -->
+            <div class="group">
+                <a href="/manage-players/" class="block">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center mb-4">
+                            <i class="fas fa-users text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Manage Players</h3>
+                        <p class="text-gray-600">
+                            Complete player profiles with photos, birthplace, roles, and detailed information
+                        </p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Tactical Analysis -->
+            <div class="group">
+                <a href="/tactical-analysis/" class="block">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+                        <div class="w-12 h-12 bg-gradient-to-br from-red-400 to-red-600 rounded-lg flex items-center justify-center mb-4">
+                            <i class="fas fa-chess text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Tactical Analysis</h3>
+                        <p class="text-gray-600">
+                            Advanced tactical insights and strategic recommendations for matches
+                        </p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section -->
+<div class="bg-chelsea-950 text-white py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold mb-4">Platform Statistics</h2>
+            <p class="text-chelsea-200 text-lg">Real-time insights into Chelsea FC's performance</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="text-center">
+                <div class="text-4xl font-bold text-chelsea-300 mb-2">25</div>
+                <div class="text-chelsea-200">Squad Players</div>
+            </div>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-chelsea-300 mb-2">2024/25</div>
+                <div class="text-chelsea-200">Current Season</div>
+            </div>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-chelsea-300 mb-2">78%</div>
+                <div class="text-chelsea-200">Win Rate</div>
+            </div>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-chelsea-300 mb-2">4-3-3</div>
+                <div class="text-chelsea-200">Preferred Formation</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div class="py-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">
+            Ready to Transform Your Football Analysis?
+        </h2>
+        <p class="text-xl text-gray-600 mb-8">
+            Join the future of football analytics with Chelsea FC's digital twin platform
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/football-field/"
+               class="bg-chelsea-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-chelsea-700 transition duration-300">
+                Start Exploring
+            </a>
+            <a href="/analytics/"
+               class="border-2 border-chelsea-600 text-chelsea-600 px-8 py-3 rounded-lg font-semibold hover:bg-chelsea-600 hover:text-white transition duration-300">
+                View Analytics
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,366 @@
+{% extends 'base_modern.html' %}
+
+{% block title %}Analytics Dashboard - Chelsea FC Digital Twin{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
+                <p class="text-gray-600 mt-1">Comprehensive performance insights for Chelsea FC</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="bg-chelsea-600 text-white px-4 py-2 rounded-lg hover:bg-chelsea-700 transition duration-200">
+                    <i class="fas fa-sync-alt mr-2"></i>Refresh Data
+                </button>
+                <select class="border border-gray-300 rounded-lg px-3 py-2">
+                    <option>Last 30 days</option>
+                    <option>Last 90 days</option>
+                    <option>This Season</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metrics -->
+<div class="py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Goals Scored -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Goals Scored</p>
+                        <p class="text-3xl font-bold text-gray-900" id="goals-scored">42</p>
+                        <p class="text-sm text-green-600">
+                            <i class="fas fa-arrow-up mr-1"></i>+8.5% vs last period
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-futbol text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Goals Conceded -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Goals Conceded</p>
+                        <p class="text-3xl font-bold text-gray-900" id="goals-conceded">18</p>
+                        <p class="text-sm text-red-600">
+                            <i class="fas fa-arrow-down mr-1"></i>-12.3% vs last period
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-red-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Win Rate -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Win Rate</p>
+                        <p class="text-3xl font-bold text-gray-900" id="win-rate">78%</p>
+                        <p class="text-sm text-green-600">
+                            <i class="fas fa-arrow-up mr-1"></i>+5.2% vs last period
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-trophy text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Average Possession -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">Avg Possession</p>
+                        <p class="text-3xl font-bold text-gray-900" id="possession">63%</p>
+                        <p class="text-sm text-green-600">
+                            <i class="fas fa-arrow-up mr-1"></i>+2.1% vs last period
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-percentage text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Goals Trend Chart -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Goals Trend</h3>
+                    <div class="flex space-x-2">
+                        <span class="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-800">
+                            <div class="w-2 h-2 bg-green-600 rounded-full mr-1"></div>
+                            Scored
+                        </span>
+                        <span class="inline-flex items-center px-2 py-1 rounded text-xs bg-red-100 text-red-800">
+                            <div class="w-2 h-2 bg-red-600 rounded-full mr-1"></div>
+                            Conceded
+                        </span>
+                    </div>
+                </div>
+                <canvas id="goalsChart" width="400" height="200"></canvas>
+            </div>
+
+            <!-- Formation Effectiveness -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Formation Effectiveness</h3>
+                </div>
+                <canvas id="formationChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Current Squad Performance -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Current Squad Performance</h3>
+                    <button class="text-chelsea-600 hover:text-chelsea-800 text-sm font-medium">
+                        View All Players <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="players-grid">
+                    <!-- Players will be loaded here via JavaScript -->
+                    <div class="text-center py-8">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-chelsea-600 mx-auto"></div>
+                        <p class="text-gray-600 mt-4">Loading player data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Matches -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Recent Matches</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4" id="recent-matches">
+                    <!-- Sample match data -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="text-sm text-gray-600">Sep 15, 2025</div>
+                            <div class="flex items-center space-x-2">
+                                <span class="font-semibold">Chelsea</span>
+                                <span class="text-2xl font-bold text-green-600">3</span>
+                                <span class="text-gray-400">-</span>
+                                <span class="text-2xl font-bold text-gray-900">1</span>
+                                <span class="font-semibold">Arsenal</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">WIN</span>
+                            <span class="text-sm text-gray-600">Premier League</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="text-sm text-gray-600">Sep 12, 2025</div>
+                            <div class="flex items-center space-x-2">
+                                <span class="font-semibold">Liverpool</span>
+                                <span class="text-2xl font-bold text-gray-900">2</span>
+                                <span class="text-gray-400">-</span>
+                                <span class="text-2xl font-bold text-gray-900">2</span>
+                                <span class="font-semibold">Chelsea</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">DRAW</span>
+                            <span class="text-sm text-gray-600">Premier League</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-4">
+                            <div class="text-sm text-gray-600">Sep 8, 2025</div>
+                            <div class="flex items-center space-x-2">
+                                <span class="font-semibold">Chelsea</span>
+                                <span class="text-2xl font-bold text-green-600">4</span>
+                                <span class="text-gray-400">-</span>
+                                <span class="text-2xl font-bold text-gray-900">0</span>
+                                <span class="font-semibold">Brighton</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">WIN</span>
+                            <span class="text-sm text-gray-600">Premier League</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Goals Trend Chart
+const goalsCtx = document.getElementById('goalsChart').getContext('2d');
+const goalsChart = new Chart(goalsCtx, {
+    type: 'line',
+    data: {
+        labels: ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'],
+        datasets: [{
+            label: 'Goals Scored',
+            data: [8, 12, 7, 9, 11, 5],
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            tension: 0.4
+        }, {
+            label: 'Goals Conceded',
+            data: [3, 4, 2, 5, 3, 1],
+            borderColor: '#ef4444',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Formation Effectiveness Chart
+const formationCtx = document.getElementById('formationChart').getContext('2d');
+const formationChart = new Chart(formationCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['4-3-3', '4-2-3-1', '3-5-2', '4-4-2'],
+        datasets: [{
+            data: [78, 65, 72, 60],
+            backgroundColor: [
+                '#1f4e79',
+                '#3d85c6',
+                '#10b981',
+                '#f59e0b'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Load Chelsea Players Data
+async function loadPlayersData() {
+    // Simulated player data - in real implementation, this would come from API
+    const players = [
+        {
+            name: 'Cole Palmer',
+            position: 'CAM',
+            rating: 8.7,
+            goals: 12,
+            assists: 8,
+            matches: 15
+        },
+        {
+            name: 'Nicolas Jackson',
+            position: 'ST',
+            rating: 8.2,
+            goals: 14,
+            assists: 4,
+            matches: 16
+        },
+        {
+            name: 'Moises Caicedo',
+            position: 'CDM',
+            rating: 8.0,
+            goals: 2,
+            assists: 5,
+            matches: 17
+        },
+        {
+            name: 'Thiago Silva',
+            position: 'CB',
+            rating: 8.1,
+            goals: 3,
+            assists: 1,
+            matches: 14
+        },
+        {
+            name: 'Reece James',
+            position: 'RB',
+            rating: 7.9,
+            goals: 3,
+            assists: 7,
+            matches: 12
+        },
+        {
+            name: 'Enzo Fernandez',
+            position: 'CM',
+            rating: 7.8,
+            goals: 4,
+            assists: 6,
+            matches: 16
+        }
+    ];
+
+    const playersGrid = document.getElementById('players-grid');
+    playersGrid.innerHTML = '';
+
+    players.forEach(player => {
+        const playerCard = `
+            <div class="p-4 border border-gray-200 rounded-lg hover:shadow-md transition duration-200">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold text-gray-900">${player.name}</h4>
+                    <span class="px-2 py-1 text-xs bg-chelsea-100 text-chelsea-800 rounded">${player.position}</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Rating:</span>
+                        <span class="font-semibold text-gray-900">${player.rating}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Goals:</span>
+                        <span class="font-semibold text-gray-900">${player.goals}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Assists:</span>
+                        <span class="font-semibold text-gray-900">${player.assists}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Matches:</span>
+                        <span class="font-semibold text-gray-900">${player.matches}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        playersGrid.innerHTML += playerCard;
+    });
+}
+
+// Load data when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadPlayersData();
+});
+</script>
+{% endblock %}

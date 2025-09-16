@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Chelsea FC Digital Twin{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        chelsea: {
+                            50: '#f0f7ff',
+                            100: '#e0efff',
+                            200: '#baddff',
+                            300: '#7dc1ff',
+                            400: '#38a0ff',
+                            500: '#0e7eff',
+                            600: '#0063ff',
+                            700: '#004fdb',
+                            800: '#0043b8',
+                            900: '#003a91',
+                            950: '#1f4e79'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-chelsea-950 shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <!-- Logo -->
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="h-10 w-10 bg-white rounded-full flex items-center justify-center">
+                            <i class="fas fa-futbol text-chelsea-950 text-xl"></i>
+                        </div>
+                        <span class="ml-3 text-xl font-bold text-white">Chelsea FC Digital Twin</span>
+                    </div>
+                </div>
+
+                <!-- Main Navigation Tabs -->
+                <div class="hidden md:flex items-center space-x-1">
+                    <a href="/"
+                       class="nav-link px-4 py-2 text-sm font-medium text-white hover:text-chelsea-300 hover:bg-chelsea-800 rounded-md transition-all duration-200 {% if request.resolver_match.url_name == 'home' %}bg-chelsea-800 text-chelsea-200{% endif %}">
+                        <i class="fas fa-home mr-2"></i>Home
+                    </a>
+                    <a href="/football-field/"
+                       class="nav-link px-4 py-2 text-sm font-medium text-white hover:text-chelsea-300 hover:bg-chelsea-800 rounded-md transition-all duration-200 {% if request.resolver_match.url_name == 'football_field' %}bg-chelsea-800 text-chelsea-200{% endif %}">
+                        <i class="fas fa-futbol mr-2"></i>Football Field
+                    </a>
+                    <a href="/analytics/"
+                       class="nav-link px-4 py-2 text-sm font-medium text-white hover:text-chelsea-300 hover:bg-chelsea-800 rounded-md transition-all duration-200 {% if request.resolver_match.url_name == 'analytics' %}bg-chelsea-800 text-chelsea-200{% endif %}">
+                        <i class="fas fa-chart-line mr-2"></i>Analytics
+                    </a>
+                    <a href="/team-management/"
+                       class="nav-link px-4 py-2 text-sm font-medium text-white hover:text-chelsea-300 hover:bg-chelsea-800 rounded-md transition-all duration-200 {% if request.resolver_match.url_name == 'team_management' %}bg-chelsea-800 text-chelsea-200{% endif %}">
+                        <i class="fas fa-users mr-2"></i>Team Management
+                    </a>
+                    <a href="/tactical-analysis/"
+                       class="nav-link px-4 py-2 text-sm font-medium text-white hover:text-chelsea-300 hover:bg-chelsea-800 rounded-md transition-all duration-200 {% if request.resolver_match.url_name == 'tactical_analysis' %}bg-chelsea-800 text-chelsea-200{% endif %}">
+                        <i class="fas fa-chess mr-2"></i>Tactical Analysis
+                    </a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button class="mobile-menu-button p-2 rounded-md text-white hover:text-chelsea-300 hover:bg-chelsea-800">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div class="mobile-menu hidden md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 bg-chelsea-900">
+                <a href="/" class="block px-3 py-2 text-white hover:text-chelsea-300 hover:bg-chelsea-800 rounded-md">
+                    <i class="fas fa-home mr-2"></i>Home
+                </a>
+                <a href="/football-field/" class="block px-3 py-2 text-white hover:text-chelsea-300 hover:bg-chelsea-800 rounded-md">
+                    <i class="fas fa-futbol mr-2"></i>Football Field
+                </a>
+                <a href="/analytics/" class="block px-3 py-2 text-white hover:text-chelsea-300 hover:bg-chelsea-800 rounded-md">
+                    <i class="fas fa-chart-line mr-2"></i>Analytics
+                </a>
+                <a href="/team-management/" class="block px-3 py-2 text-white hover:text-chelsea-300 hover:bg-chelsea-800 rounded-md">
+                    <i class="fas fa-users mr-2"></i>Team Management
+                </a>
+                <a href="/tactical-analysis/" class="block px-3 py-2 text-white hover:text-chelsea-300 hover:bg-chelsea-800 rounded-md">
+                    <i class="fas fa-chess mr-2"></i>Tactical Analysis
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-600">
+                    © 2025 Chelsea FC Digital Twin Platform
+                </div>
+                <div class="flex space-x-4">
+                    <i class="fab fa-twitter text-gray-400 hover:text-chelsea-600 cursor-pointer"></i>
+                    <i class="fab fa-facebook text-gray-400 hover:text-chelsea-600 cursor-pointer"></i>
+                    <i class="fab fa-instagram text-gray-400 hover:text-chelsea-600 cursor-pointer"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-button').addEventListener('click', function() {
+            document.querySelector('.mobile-menu').classList.toggle('hidden');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const mobileButton = document.querySelector('.mobile-menu-button');
+
+            if (!mobileButton.contains(event.target) && !mobileMenu.contains(event.target)) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+    </script>
+
+    {% block extra_js %}
+    {% endblock %}
+</body>
+</html>

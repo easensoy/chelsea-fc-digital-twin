@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chelsea FC - Player Profiles & Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1f4e79 0%, #3d85c6 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #1f4e79 0%, #3d85c6 100%);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .header img {
+            height: 60px;
+            width: auto;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .nav-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .nav-button {
+            display: inline-block;
+            background: #3d85c6;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-button:hover {
+            background: #1f4e79;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .filters {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-group label {
+            font-weight: bold;
+            color: #1f4e79;
+        }
+
+        .filter-group select {
+            padding: 8px 15px;
+            border: 2px solid #3d85c6;
+            border-radius: 5px;
+            background: white;
+            color: #1f4e79;
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .player-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .player-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            border-color: #3d85c6;
+        }
+
+        .player-card-header {
+            background: linear-gradient(135deg, #1f4e79 0%, #3d85c6 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .player-number {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .player-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            margin-bottom: 15px;
+        }
+
+        .player-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .player-role {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .player-card-body {
+            padding: 25px;
+        }
+
+        .player-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: #666;
+            font-weight: bold;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: #1f4e79;
+            font-weight: 600;
+        }
+
+        .player-stats {
+            border-top: 2px solid #f0f0f0;
+            padding-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #1f4e79;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-injured {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-substitute {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        @media (max-width: 768px) {
+            .players-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                justify-content: space-between;
+            }
+
+            .player-info {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .no-players {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <img src="/static/chelsea-logo.jpg" alt="Chelsea FC Logo">
+                <div>
+                    <h1>Player Profiles & Management</h1>
+                    <p>Complete Chelsea FC Squad Information</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="nav-section">
+                <a href="/football-field/" class="nav-button">← Back to Formation</a>
+                <a href="/team-management/" class="nav-button">Team Management</a>
+                <a href="/analytics/" class="nav-button">Analytics Dashboard</a>
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="position-filter">Position:</label>
+                    <select id="position-filter" onchange="filterPlayers()">
+                        <option value="all">All Positions</option>
+                        <option value="Goalkeeper">Goalkeepers</option>
+                        <option value="Defender">Defenders</option>
+                        <option value="Midfielder">Midfielders</option>
+                        <option value="Forward">Forwards</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="status-filter">Status:</label>
+                    <select id="status-filter" onchange="filterPlayers()">
+                        <option value="all">All Players</option>
+                        <option value="starting">Starting XI</option>
+                        <option value="substitute">Substitutes</option>
+                        <option value="injured">Injured</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="nationality-filter">Nationality:</label>
+                    <select id="nationality-filter" onchange="filterPlayers()">
+                        <option value="all">All Countries</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="age-filter">Age Range:</label>
+                    <select id="age-filter" onchange="filterPlayers()">
+                        <option value="all">All Ages</option>
+                        <option value="young">Under 21</option>
+                        <option value="prime">21-28</option>
+                        <option value="experienced">29+</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="loading" class="loading">
+                Loading Chelsea FC players...
+            </div>
+
+            <div id="players-container" class="players-grid" style="display: none;">
+                <!-- Players will be loaded here -->
+            </div>
+
+            <div id="no-players" class="no-players" style="display: none;">
+                No players found matching the current filters.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allPlayers = [];
+        let filteredPlayers = [];
+
+        // Load players when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPlayers();
+        });
+
+        async function loadPlayers() {
+            try {
+                const response = await fetch('/api/players/');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                allPlayers = data.players;
+                filteredPlayers = [...allPlayers];
+
+                populateNationalityFilter();
+                displayPlayers();
+                hideLoading();
+            } catch (error) {
+                console.error('Error loading players:', error);
+                document.getElementById('loading').innerHTML = 'Error loading players. Please refresh the page.';
+            }
+        }
+
+        function populateNationalityFilter() {
+            const nationalityFilter = document.getElementById('nationality-filter');
+            const nationalities = [...new Set(allPlayers.map(p => p.nationality))].sort();
+
+            // Clear existing options except "All Countries"
+            nationalityFilter.innerHTML = '<option value="all">All Countries</option>';
+
+            nationalities.forEach(nationality => {
+                const option = document.createElement('option');
+                option.value = nationality;
+                option.textContent = nationality;
+                nationalityFilter.appendChild(option);
+            });
+        }
+
+        function displayPlayers() {
+            const container = document.getElementById('players-container');
+            const noPlayersDiv = document.getElementById('no-players');
+
+            if (filteredPlayers.length === 0) {
+                container.style.display = 'none';
+                noPlayersDiv.style.display = 'block';
+                return;
+            }
+
+            container.style.display = 'grid';
+            noPlayersDiv.style.display = 'none';
+
+            container.innerHTML = filteredPlayers.map(player => createPlayerCard(player)).join('');
+        }
+
+        function createPlayerCard(player) {
+            const statusClass = player.injured ? 'status-injured' :
+                               player.starting ? 'status-active' : 'status-substitute';
+            const statusText = player.injured ? 'Injured' :
+                              player.starting ? 'Starting XI' : 'Substitute';
+
+            return `
+                <div class="player-card">
+                    <div class="player-card-header">
+                        <div class="player-number">${player.number || 'N/A'}</div>
+                        <img src="${player.photo || getPlaceholderImage()}" alt="${player.name}" class="player-photo"
+                             onerror="this.src='${getPlaceholderImage()}'">
+                        <div class="player-name">${player.name}</div>
+                        <div class="player-role">${player.role || player.position}</div>
+                    </div>
+                    <div class="player-card-body">
+                        <div class="player-info">
+                            <div class="info-item">
+                                <div class="info-label">Age</div>
+                                <div class="info-value">${player.age || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Nationality</div>
+                                <div class="info-value">${player.nationality || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Birthplace</div>
+                                <div class="info-value">${player.birthplace || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Status</div>
+                                <div class="info-value">
+                                    <span class="status-badge ${statusClass}">${statusText}</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Height</div>
+                                <div class="info-value">${player.height || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Weight</div>
+                                <div class="info-value">${player.weight || 'N/A'}</div>
+                            </div>
+                        </div>
+                        <div class="player-stats">
+                            <div class="stat-item">
+                                <div class="stat-label">Squad #</div>
+                                <div class="stat-value">${player.number || 'N/A'}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Position</div>
+                                <div class="stat-value">${player.position}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getPlaceholderImage() {
+            return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUwIiBoZWlnaHQ9IjI1MCIgdmlld0JveD0iMCAwIDI1MCAyNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyNTAiIGhlaWdodD0iMjUwIiBmaWxsPSIjZjhmOWZhIi8+CjxjaXJjbGUgY3g9IjEyNSIgY3k9IjEwMCIgcj0iNDAiIGZpbGw9IiMxZjRlNzkiLz4KPHBhdGggZD0iTTc1IDE3NWMwLTI3LjYxNCAyMi4zODYtNTAgNTAtNTBzNTAgMjIuMzg2IDUwIDUwdjc1SDc1di03NXoiIGZpbGw9IiMxZjRlNzkiLz4KPHN2Zz4K';
+        }
+
+        function filterPlayers() {
+            const positionFilter = document.getElementById('position-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+            const nationalityFilter = document.getElementById('nationality-filter').value;
+            const ageFilter = document.getElementById('age-filter').value;
+
+            filteredPlayers = allPlayers.filter(player => {
+                // Position filter
+                if (positionFilter !== 'all' && player.position !== positionFilter) {
+                    return false;
+                }
+
+                // Status filter
+                if (statusFilter !== 'all') {
+                    if (statusFilter === 'starting' && !player.starting) return false;
+                    if (statusFilter === 'substitute' && player.starting) return false;
+                    if (statusFilter === 'injured' && !player.injured) return false;
+                }
+
+                // Nationality filter
+                if (nationalityFilter !== 'all' && player.nationality !== nationalityFilter) {
+                    return false;
+                }
+
+                // Age filter
+                if (ageFilter !== 'all' && player.age) {
+                    const age = player.age;
+                    if (ageFilter === 'young' && age >= 21) return false;
+                    if (ageFilter === 'prime' && (age < 21 || age > 28)) return false;
+                    if (ageFilter === 'experienced' && age < 29) return false;
+                }
+
+                return true;
+            });
+
+            displayPlayers();
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

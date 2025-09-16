@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Management - Chelsea FC Digital Twin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #1f4e79 0%, #3d85c6 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #1f4e79;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .nav {
+            background: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav a {
+            color: #1f4e79;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav a:hover, .nav a.active {
+            background: #3d85c6;
+            color: white;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .page-header h2 {
+            color: #1f4e79;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .management-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .management-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .management-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .management-card .icon {
+            font-size: 3rem;
+            color: #3d85c6;
+            margin-bottom: 20px;
+        }
+
+        .management-card h3 {
+            color: #1f4e79;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .management-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .management-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .management-card ul li {
+            color: #666;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .management-card ul li:before {
+            content: "⚽ ";
+            color: #3d85c6;
+            margin-right: 10px;
+        }
+
+        .management-card ul li:last-child {
+            border-bottom: none;
+        }
+
+        .btn-primary {
+            background: #3d85c6;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: #1f4e79;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            color: white;
+            text-decoration: none;
+        }
+
+        .stats-overview {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-overview h3 {
+            color: #1f4e79;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 25px;
+            border-radius: 12px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            border-color: #3d85c6;
+            background: #f0f8ff;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1f4e79;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .nav-content {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .page-header h2 {
+                font-size: 2rem;
+            }
+
+            .management-sections {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">⚽</div>
+                <h1>Chelsea FC Digital Twin</h1>
+            </div>
+        </div>
+    </header>
+
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="/">Home</a>
+            <a href="/football-field/">Football Field</a>
+            <a href="/dashboard/">Dashboard</a>
+            <a href="/team-management/" class="active">Team Management</a>
+            <a href="/tactical-analysis/">Tactical Analysis</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section class="page-header">
+            <h2>Team Management</h2>
+            <p>Comprehensive player management, squad analysis, and performance tracking for Chelsea FC. Monitor individual player development, manage formations, and optimise team composition.</p>
+        </section>
+
+        <div class="stats-overview">
+            <h3>Squad Overview</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number">25</span>
+                    <span class="stat-label">Squad Players</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">18</span>
+                    <span class="stat-label">Available</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">4</span>
+                    <span class="stat-label">Injured</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">On Loan</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">7.8</span>
+                    <span class="stat-label">Avg Rating</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">92%</span>
+                    <span class="stat-label">Fitness Level</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="management-sections">
+            <div class="management-card">
+                <div class="icon">👤</div>
+                <h3>Player Profiles</h3>
+                <p>Complete player database with detailed statistics, contract information, and performance history.</p>
+                <ul>
+                    <li>Personal information and contracts</li>
+                    <li>Performance statistics</li>
+                    <li>Injury history and fitness levels</li>
+                    <li>Market value and transfer history</li>
+                </ul>
+                <br>
+                <a href="/players/" class="btn-primary">Manage Players</a>
+            </div>
+
+            <div class="management-card">
+                <div class="icon">🏃</div>
+                <h3>Fitness Monitoring</h3>
+                <p>Track player fitness levels, injury status, and recovery progress to optimise squad availability.</p>
+                <ul>
+                    <li>Real-time fitness tracking</li>
+                    <li>Injury prevention analytics</li>
+                    <li>Recovery timelines</li>
+                    <li>Training load management</li>
+                </ul>
+                <br>
+                <a href="/fitness/" class="btn-primary">View Fitness Data</a>
+            </div>
+
+            <div class="management-card">
+                <div class="icon">📊</div>
+                <h3>Performance Analytics</h3>
+                <p>Comprehensive performance analysis with match statistics, ratings, and development trends.</p>
+                <ul>
+                    <li>Match performance ratings</li>
+                    <li>Statistical comparisons</li>
+                    <li>Development tracking</li>
+                    <li>Strengths and weaknesses analysis</li>
+                </ul>
+                <br>
+                <a href="/performance/" class="btn-primary">Analyse Performance</a>
+            </div>
+
+            <div class="management-card">
+                <div class="icon">🔄</div>
+                <h3>Squad Rotation</h3>
+                <p>Intelligent squad rotation recommendations based on fitness, form, and tactical requirements.</p>
+                <ul>
+                    <li>Rotation recommendations</li>
+                    <li>Rest period calculations</li>
+                    <li>Form-based selections</li>
+                    <li>Opposition analysis impact</li>
+                </ul>
+                <br>
+                <a href="/rotation/" class="btn-primary">Plan Rotation</a>
+            </div>
+
+            <div class="management-card">
+                <div class="icon">🎯</div>
+                <h3>Development Tracking</h3>
+                <p>Monitor player development progress, set targets, and track improvement across all metrics.</p>
+                <ul>
+                    <li>Individual development goals</li>
+                    <li>Progress tracking charts</li>
+                    <li>Skill improvement areas</li>
+                    <li>Potential assessments</li>
+                </ul>
+                <br>
+                <a href="/development/" class="btn-primary">Track Progress</a>
+            </div>
+
+            <div class="management-card">
+                <div class="icon">💰</div>
+                <h3>Contract Management</h3>
+                <p>Manage player contracts, renewal dates, wage structures, and transfer considerations.</p>
+                <ul>
+                    <li>Contract expiry tracking</li>
+                    <li>Renewal recommendations</li>
+                    <li>Wage structure analysis</li>
+                    <li>Transfer value assessments</li>
+                </ul>
+                <br>
+                <a href="/contracts/" class="btn-primary">Manage Contracts</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
