@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chelsea FC - Football Field Visualizations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1f4e79 0%, #3d85c6 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #1f4e79 0%, #3d85c6 100%);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section h2 {
+            color: #1f4e79;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #3d85c6;
+            padding-bottom: 10px;
+        }
+
+        .field-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #3d85c6;
+        }
+
+        .control-group {
+            margin: 15px 0;
+        }
+
+        .control-group label {
+            display: inline-block;
+            width: 120px;
+            font-weight: bold;
+            color: #1f4e79;
+        }
+
+        .control-group select,
+        .control-group button {
+            padding: 8px 15px;
+            border: 2px solid #3d85c6;
+            border-radius: 5px;
+            background: white;
+            color: #1f4e79;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-group button {
+            background: #3d85c6;
+            color: white;
+            margin: 0 5px;
+        }
+
+        .control-group select:hover,
+        .control-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-group button:hover {
+            background: #1f4e79;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .feature {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #3d85c6;
+            transition: transform 0.3s ease;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature h3 {
+            color: #1f4e79;
+            margin-bottom: 15px;
+        }
+
+        .feature ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .feature ul li {
+            padding: 5px 0;
+            color: #666;
+        }
+
+        .feature ul li:before {
+            content: "⚽ ";
+            color: #3d85c6;
+            margin-right: 10px;
+        }
+
+        .demo-section {
+            background: #f8f9fa;
+            padding: 30px;
+            margin: 30px 0;
+            border-radius: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            background: #e9ecef;
+            border: none;
+            padding: 12px 25px;
+            margin-right: 5px;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: #3d85c6;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-radius: 0 10px 10px 10px;
+            border: 2px solid #3d85c6;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .responsive-field {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                margin-bottom: 5px;
+                margin-right: 0;
+                border-radius: 8px;
+            }
+
+            .tab-content {
+                border-radius: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚽ Chelsea FC Digital Twin</h1>
+            <p>Professional Football Field Visualizations</p>
+        </div>
+
+        <div class="content">
+            <!-- Features Overview -->
+            <div class="section">
+                <h2>Football Field Visualization Features</h2>
+                <div class="features">
+                    <div class="feature">
+                        <h3>🎨 Clean Design</h3>
+                        <ul>
+                            <li>Perfectly mowed grass pattern</li>
+                            <li>Accurate field dimensions</li>
+                            <li>Professional white line markings</li>
+                            <li>Realistic goalposts and corner flags</li>
+                        </ul>
+                    </div>
+                    <div class="feature">
+                        <h3>⚡ Interactive Elements</h3>
+                        <ul>
+                            <li>Click-to-select player positions</li>
+                            <li>Formation switching</li>
+                            <li>Real-time heatmap overlays</li>
+                            <li>Hover effects and animations</li>
+                        </ul>
+                    </div>
+                    <div class="feature">
+                        <h3>📱 Responsive Design</h3>
+                        <ul>
+                            <li>Scales to any screen size</li>
+                            <li>Touch-friendly controls</li>
+                            <li>Multiple theme options</li>
+                            <li>Export capabilities (PNG/SVG)</li>
+                        </ul>
+                    </div>
+                    <div class="feature">
+                        <h3>🔧 Developer Friendly</h3>
+                        <ul>
+                            <li>Pure JavaScript and React versions</li>
+                            <li>Extensive customization options</li>
+                            <li>Event handling system</li>
+                            <li>Modular architecture</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demo Tabs -->
+            <div class="demo-section">
+                <h2>Interactive Demonstrations</h2>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('vanilla')">Vanilla JavaScript</button>
+                    <button class="tab" onclick="switchTab('formation')">Formation Board</button>
+                    <button class="tab" onclick="switchTab('heatmap')">Heatmap Demo</button>
+                </div>
+
+                <!-- Vanilla JavaScript Demo -->
+                <div class="tab-content active" id="vanilla-tab">
+                    <h3>Standard Football Field</h3>
+                    <p>A clean, professional football field with accurate proportions and realistic details.</p>
+
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Actions:</label>
+                            <button onclick="toggleInteractive()">Toggle Interactive</button>
+                            <button onclick="exportField('svg')">Export SVG</button>
+                            <button onclick="exportField('png')">Export PNG</button>
+                        </div>
+                    </div>
+
+                    <div class="field-container">
+                        <div id="vanilla-field"></div>
+                    </div>
+                </div>
+
+                <!-- Formation Demo -->
+                <div class="tab-content" id="formation-tab">
+                    <h3>Formation Visualization</h3>
+                    <p>Interactive field showing player positions for different formations.</p>
+
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Formation:</label>
+                            <select id="formation-select" onchange="changeFormation()">
+                                <option value="4-3-3">4-3-3</option>
+                                <option value="4-4-2">4-4-2</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field-container">
+                        <div id="formation-field"></div>
+                    </div>
+                </div>
+
+                <!-- Heatmap Demo -->
+                <div class="tab-content" id="heatmap-tab">
+                    <h3>Heatmap Visualization</h3>
+                    <p>Field with heatmap overlay showing player activity zones.</p>
+
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Data:</label>
+                            <button onclick="generateHeatmap()">Generate Sample Data</button>
+                            <button onclick="clearHeatmap()">Clear Heatmap</button>
+                        </div>
+                    </div>
+
+                    <div class="field-container">
+                        <div id="heatmap-field"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usage Examples -->
+            <div class="section">
+                <h2>Usage Examples</h2>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #28a745;">
+                    <h3>Basic Implementation</h3>
+                    <pre style="background: #343a40; color: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>// Create a standard field
+const field = new FootballField('field-container', {
+    width: 800,
+    height: 520,
+    interactive: true,
+    showPlayerPositions: true,
+    formation: '4-3-3'
+});
+
+// Handle player clicks
+field.options.onFieldClick = (x, y) => {
+    console.log('Field clicked at:', x, y);
+};</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Scripts -->
+    <script src="../static/football-field.js"></script>
+
+    <script>
+        let vanillaField, formationField, heatmapField;
+        let isInteractive = false;
+
+        // Initialize fields when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vanilla field
+            vanillaField = new FootballField('vanilla-field', {
+                width: 700,
+                height: 455,
+                interactive: false
+            });
+
+            // Formation field
+            formationField = new FootballField('formation-field', {
+                width: 700,
+                height: 455,
+                interactive: true,
+                showPlayerPositions: true,
+                formation: '4-3-3',
+                onFieldClick: (x, y) => {
+                    console.log('Formation field clicked at:', x, y);
+                }
+            });
+
+            // Heatmap field
+            heatmapField = new FootballField('heatmap-field', {
+                width: 700,
+                height: 455,
+                interactive: true
+            });
+        });
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function toggleInteractive() {
+            isInteractive = !isInteractive;
+
+            // Recreate vanilla field with new settings
+            document.getElementById('vanilla-field').innerHTML = '';
+            vanillaField = new FootballField('vanilla-field', {
+                width: 700,
+                height: 455,
+                interactive: isInteractive,
+                onFieldClick: isInteractive ? (x, y) => {
+                    alert(`Field clicked at coordinates: ${Math.round(x)}, ${Math.round(y)}`);
+                } : null
+            });
+        }
+
+        function changeFormation() {
+            const formation = document.getElementById('formation-select').value;
+            formationField.updateFormation(formation);
+        }
+
+        function generateHeatmap() {
+            const sampleData = [
+                { x: 150, y: 200, value: 0.8 },
+                { x: 250, y: 150, value: 0.6 },
+                { x: 350, y: 300, value: 1.0 },
+                { x: 450, y: 200, value: 0.7 },
+                { x: 550, y: 250, value: 0.4 },
+                { x: 300, y: 350, value: 0.9 }
+            ];
+
+            heatmapField.addHeatmapData(sampleData);
+        }
+
+        function clearHeatmap() {
+            heatmapField.redraw();
+        }
+
+        function exportField(format) {
+            if (format === 'svg') {
+                const svgData = vanillaField.exportAsSVG();
+                const blob = new Blob([svgData], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'football-field.svg';
+                link.click();
+
+                URL.revokeObjectURL(url);
+            } else if (format === 'png') {
+                vanillaField.exportAsPNG((blob) => {
+                    const url = URL.createObjectURL(blob);
+
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'football-field.png';
+                    link.click();
+
+                    URL.revokeObjectURL(url);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
