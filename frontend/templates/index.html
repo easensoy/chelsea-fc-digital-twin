@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chelsea FC Digital Twin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1f4e79 0%, #3d85c6 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #1f4e79;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        .nav-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        .nav-card {
+            background: rgba(255, 255, 255, 0.95);
+            color: #1f4e79;
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            color: #1f4e79;
+            text-decoration: none;
+        }
+
+        .nav-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #1f4e79;
+        }
+
+        .nav-card p {
+            font-size: 1rem;
+            line-height: 1.5;
+            opacity: 0.8;
+        }
+
+        .nav-card .icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #3d85c6;
+        }
+
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+
+            .nav-cards {
+                grid-template-columns: 1fr;
+                padding: 0 20px;
+            }
+
+            .nav-card {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">⚽</div>
+        <h1 class="title">Chelsea FC Digital Twin</h1>
+        <p class="subtitle">Professional Football Analytics & Visualization Platform</p>
+    </div>
+
+    <div class="nav-cards">
+        <a href="/football-field/" class="nav-card">
+            <div class="icon">🏟️</div>
+            <h3>Interactive Football Field</h3>
+            <p>Explore our beautiful, interactive football field visualization with player positions, formations, and tactical analysis.</p>
+        </a>
+
+        <a href="/dashboard/" class="nav-card">
+            <div class="icon">📊</div>
+            <h3>Analytics Dashboard</h3>
+            <p>Comprehensive performance analytics, match insights, and data visualization for tactical decision making.</p>
+        </a>
+
+        <a href="/football-field/" class="nav-card">
+            <div class="icon">👥</div>
+            <h3>Team Management</h3>
+            <p>Manage player statistics, formations, and track performance metrics across matches and seasons.</p>
+        </a>
+
+        <a href="/football-field/" class="nav-card">
+            <div class="icon">🎯</div>
+            <h3>Tactical Analysis</h3>
+            <p>Advanced tactical insights, formation effectiveness, and strategic recommendations for optimal performance.</p>
+        </a>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Chelsea FC Digital Twin Platform | Built with Django & Modern Web Technologies</p>
+    </div>
+</body>
+</html>
