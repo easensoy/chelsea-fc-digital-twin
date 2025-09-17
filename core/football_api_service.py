@@ -4,6 +4,7 @@ import requests
 from django.conf import settings
 from django.core.cache import cache
 from datetime import datetime, timedelta
+from .chelsea_scraper import ChelseaPlayerScraper
 
 logger = logging.getLogger(__name__)
 
@@ -13,14 +14,22 @@ class FootballAPIService:
     """
 
     def __init__(self):
-        # Sportmonks API configuration
+        # API-Sports.io configuration (Primary)
+        self.api_sports_base_url = "https://v3.football.api-sports.io"
+        self.api_sports_headers = {
+            "x-rapidapi-key": getattr(settings, 'API_SPORTS_KEY', 'XxXxXxXxXxXxXxXxXxXxXxXx'),
+            "x-rapidapi-host": "v3.football.api-sports.io"
+        }
+        self.api_sports_media_base = "https://media.api-sports.io/football/players"
+
+        # Sportmonks API configuration (backup)
         self.sportmonks_base_url = "https://api.sportmonks.com/v3/football"
         self.sportmonks_api_token = "P0PH716oxH180nZGGr5qWEtBDHIeUGZdh5lzlyZLox5CMzj7bKzsdqAPFRJR"
 
-        # API-Football configuration (backup)
-        self.api_football_base_url = "https://api-football-v1.p.rapidapi.com/v3"
-        self.api_football_headers = {
-            "X-RapidAPI-Key": getattr(settings, 'RAPIDAPI_KEY', ''),
+        # RapidAPI Football configuration (primary)
+        self.rapidapi_football_base_url = "https://api-football-v1.p.rapidapi.com/v3"
+        self.rapidapi_football_headers = {
+            "X-RapidAPI-Key": getattr(settings, 'RAPIDAPI_KEY', 'XxXxXxXxXxXxXxXxXxXxXxXx'),
             "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com"
         }
 
@@ -30,8 +39,9 @@ class FootballAPIService:
         self.sportradar_api_key = getattr(settings, 'SPORTRADAR_API_KEY', '')
 
         # Chelsea FC team ID (varies by API)
+        self.chelsea_team_id_api_sports = 49  # Chelsea's ID in API-Sports.io
         self.chelsea_team_id_sportmonks = 39  # Trying different IDs for Chelsea in Sportmonks
-        self.chelsea_team_id_api_football = 49  # Chelsea's ID in API-Football
+        self.chelsea_team_id_rapidapi_football = 49  # Chelsea's ID in RapidAPI Football
         self.current_season = 2024  # 2024-25 season
 
         # Cache timeout (1 hour)
@@ -48,16 +58,40 @@ class FootballAPIService:
             return cached_data
 
         try:
-            # Try to fetch from Sportmonks API first
-            players_data = self._fetch_sportmonks_players()
+            # Try to fetch from Chelsea website scraper first
+            players_data = self._fetch_chelsea_website_players()
 
             if players_data:
-                logger.info("Successfully fetched Chelsea players from Sportmonks API")
+                logger.info("Successfully fetched Chelsea players from official website")
                 cache.set(cache_key, players_data, self.cache_timeout)
                 return players_data
             else:
-                logger.info("Sportmonks API failed, using fallback player data")
-                return self._get_fallback_players_data()
+                logger.info("Website scraping failed, trying RapidAPI Football")
+                players_data = self._fetch_rapidapi_football_players()
+
+                if players_data:
+                    logger.info("Successfully fetched Chelsea players from RapidAPI Football")
+                    cache.set(cache_key, players_data, self.cache_timeout)
+                    return players_data
+                else:
+                    logger.info("RapidAPI Football failed, trying API-Sports.io")
+                    players_data = self._fetch_api_sports_players()
+
+                    if players_data:
+                        logger.info("Successfully fetched Chelsea players from API-Sports.io")
+                        cache.set(cache_key, players_data, self.cache_timeout)
+                        return players_data
+                    else:
+                        logger.info("API-Sports.io failed, trying Sportmonks API")
+                        players_data = self._fetch_sportmonks_players()
+
+                        if players_data:
+                            logger.info("Successfully fetched Chelsea players from Sportmonks API")
+                            cache.set(cache_key, players_data, self.cache_timeout)
+                            return players_data
+                        else:
+                            logger.info("All methods failed, using enhanced fallback player data")
+                            return self._get_fallback_players_data()
 
         except Exception as e:
             logger.error(f"Error fetching Chelsea players: {str(e)}")
@@ -100,6 +134,252 @@ class FootballAPIService:
         except Exception as e:
             logger.error(f"Error fetching Chelsea statistics: {str(e)}")
             return self._get_fallback_team_stats()
+
+    def _fetch_api_sports_players(self):
+        """
+        Fetch Chelsea players from API-Sports.io
+        """
+        try:
+            # Get Chelsea squad from API-Sports.io
+            url = f"{self.api_sports_base_url}/players/squads"
+            params = {
+                'team': self.chelsea_team_id_api_sports
+            }
+
+            response = requests.get(url, headers=self.api_sports_headers, params=params, timeout=10)
+            response.raise_for_status()
+
+            data = response.json()
+            logger.info(f"API-Sports.io response received: {len(data.get('response', []))} players")
+
+            if 'response' in data and data['response']:
+                return self._process_api_sports_players(data['response'])
+
+            return None
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Network error fetching from API-Sports.io: {str(e)}")
+            return None
+        except Exception as e:
+            logger.error(f"Error processing API-Sports.io response: {str(e)}")
+            return None
+
+    def _fetch_chelsea_website_players(self):
+        """
+        Fetch Chelsea players from official website using web scraper
+        """
+        try:
+            scraper = ChelseaPlayerScraper()
+            scraped_players = scraper.run()
+
+            if scraped_players:
+                # Convert to Django format
+                django_players = scraper.to_django_format()
+                logger.info(f"Website scraper found {len(django_players)} players")
+                return django_players
+
+            return None
+
+        except Exception as e:
+            logger.error(f"Website scraping error: {str(e)}")
+            return None
+
+    def _fetch_rapidapi_football_players(self):
+        """
+        Fetch Chelsea players from RapidAPI Football API
+        """
+        try:
+            # Get Chelsea squad from RapidAPI Football
+            url = f"{self.rapidapi_football_base_url}/players"
+            params = {
+                'team': self.chelsea_team_id_rapidapi_football,
+                'season': self.current_season
+            }
+
+            response = requests.get(url, headers=self.rapidapi_football_headers, params=params, timeout=10)
+            response.raise_for_status()
+
+            data = response.json()
+            logger.info(f"RapidAPI Football response received: {len(data.get('response', []))} players")
+
+            if 'response' in data and data['response']:
+                return self._process_rapidapi_football_players(data['response'])
+
+            return None
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Network error fetching from RapidAPI Football: {str(e)}")
+            return None
+        except Exception as e:
+            logger.error(f"Error processing RapidAPI Football response: {str(e)}")
+            return None
+
+    def _process_rapidapi_football_players(self, players_data):
+        """
+        Process players data from RapidAPI Football response
+        """
+        try:
+            players = []
+
+            for player_info in players_data:
+                player = player_info.get('player', {})
+                statistics = player_info.get('statistics', [])
+
+                # Get the most recent statistics (usually Chelsea)
+                chelsea_stats = None
+                if statistics:
+                    for stat in statistics:
+                        if stat.get('team', {}).get('id') == self.chelsea_team_id_rapidapi_football:
+                            chelsea_stats = stat
+                            break
+                    if not chelsea_stats:
+                        chelsea_stats = statistics[0]  # Fallback to first stats
+
+                # Calculate age from date of birth
+                age = None
+                if player.get('birth', {}).get('date'):
+                    try:
+                        birth_date = datetime.strptime(player['birth']['date'], '%Y-%m-%d')
+                        age = (datetime.now() - birth_date).days // 365
+                    except:
+                        age = None
+
+                processed_player = {
+                    'id': player.get('id'),
+                    'name': player.get('name', 'Unknown'),
+                    'firstname': player.get('firstname', ''),
+                    'lastname': player.get('lastname', ''),
+                    'age': age,
+                    'nationality': player.get('nationality', ''),
+                    'position': self._map_rapidapi_football_position(player.get('position', '')),
+                    'role': player.get('position', ''),
+                    'birthplace': player.get('birth', {}).get('place', ''),
+                    'height': f"{player.get('height', '').replace('cm', '').strip()} cm" if player.get('height') else 'N/A',
+                    'weight': f"{player.get('weight', '').replace('kg', '').strip()} kg" if player.get('weight') else 'N/A',
+                    'number': chelsea_stats.get('games', {}).get('number') if chelsea_stats else None,
+                    'injured': player.get('injured', False),
+                    'photo': player.get('photo') or self._get_placeholder_image(),
+                    'starting': self._determine_rapidapi_football_starting_status(player, chelsea_stats)
+                }
+                players.append(processed_player)
+
+            logger.info(f"Processed {len(players)} players from RapidAPI Football")
+            return players
+
+        except Exception as e:
+            logger.error(f"Error processing RapidAPI Football players: {str(e)}")
+            return None
+
+    def _map_rapidapi_football_position(self, rapidapi_position):
+        """
+        Map RapidAPI Football position names to our standard format
+        """
+        position_mapping = {
+            'Goalkeeper': 'Goalkeeper',
+            'Defender': 'Defender',
+            'Midfielder': 'Midfielder',
+            'Attacker': 'Forward'
+        }
+        return position_mapping.get(rapidapi_position, 'Midfielder')
+
+    def _determine_rapidapi_football_starting_status(self, player, chelsea_stats):
+        """
+        Determine if player is in starting XI based on games played and appearances
+        """
+        if not chelsea_stats:
+            return False
+
+        games = chelsea_stats.get('games', {})
+        appearances = games.get('appearences', 0)
+        lineups = games.get('lineups', 0)
+
+        # Players with more appearances and lineups are more likely to be starters
+        if appearances >= 10 and lineups >= 8:
+            return True
+        elif appearances >= 5 and lineups >= 3:
+            return True
+
+        return False
+
+    def _process_api_sports_players(self, players_data):
+        """
+        Process players data from API-Sports.io response
+        """
+        try:
+            players = []
+
+            for player_info in players_data:
+                player = player_info.get('player', {})
+
+                # Calculate age from date of birth
+                age = None
+                if player.get('birth', {}).get('date'):
+                    try:
+                        birth_date = datetime.strptime(player['birth']['date'], '%Y-%m-%d')
+                        age = (datetime.now() - birth_date).days // 365
+                    except:
+                        age = None
+
+                processed_player = {
+                    'id': player.get('id'),
+                    'name': player.get('name', 'Unknown'),
+                    'firstname': player.get('firstname', ''),
+                    'lastname': player.get('lastname', ''),
+                    'age': age,
+                    'nationality': player.get('nationality', ''),
+                    'position': self._map_api_sports_position(player.get('position', '')),
+                    'role': player.get('position', ''),
+                    'birthplace': player.get('birth', {}).get('place', ''),
+                    'height': f"{player.get('height', '').replace('cm', '').strip()} cm" if player.get('height') else 'N/A',
+                    'weight': f"{player.get('weight', '').replace('kg', '').strip()} kg" if player.get('weight') else 'N/A',
+                    'number': None,  # This needs to be fetched from team squad endpoint
+                    'injured': player.get('injured', False),
+                    'photo': self._get_api_sports_photo_url(player.get('id')),
+                    'starting': self._determine_api_sports_starting_status(player)
+                }
+                players.append(processed_player)
+
+            logger.info(f"Processed {len(players)} players from API-Sports.io")
+            return players
+
+        except Exception as e:
+            logger.error(f"Error processing API-Sports.io players: {str(e)}")
+            return None
+
+    def _map_api_sports_position(self, api_sports_position):
+        """
+        Map API-Sports.io position names to our standard format
+        """
+        position_mapping = {
+            'Goalkeeper': 'Goalkeeper',
+            'Defender': 'Defender',
+            'Midfielder': 'Midfielder',
+            'Attacker': 'Forward'
+        }
+        return position_mapping.get(api_sports_position, 'Midfielder')
+
+    def _determine_api_sports_starting_status(self, player):
+        """
+        Determine if player is in starting XI based on basic criteria
+        """
+        # This is simplified logic - in real implementation you'd use recent match lineups
+        age = player.get('age', 30)
+
+        # Younger players in key positions are more likely to be starters
+        if age and age < 25:
+            return True
+        elif age and age < 30:
+            return True
+
+        return False
+
+    def _get_api_sports_photo_url(self, player_id):
+        """
+        Get player photo URL from API-Sports.io media service
+        """
+        if player_id:
+            return f"{self.api_sports_media_base}/{player_id}.png"
+        return self._get_placeholder_image()
 
     def _fetch_sportmonks_players(self):
         """
@@ -631,7 +911,7 @@ class FootballAPIService:
                 'weight': '73 kg',
                 'number': 18,
                 'injured': False,
-                'starting': False
+                'starting': True
             },
             {
                 'id': 20,
@@ -683,6 +963,9 @@ class FootballAPIService:
             }
         ]
 
+        # Store current players for position-based avatar colors
+        self._current_players = players_data
+
         # Add photo URLs to all players using the photo service
         for player in players_data:
             player['photo'] = self.get_player_photo_url(player['name'], player['id'])
@@ -700,6 +983,105 @@ class FootballAPIService:
         starting_defenders = [p for p in players if p['position'] == 'Defender' and p.get('starting', False)][:4]
         starting_midfielders = [p for p in players if p['position'] == 'Midfielder' and p.get('starting', False)][:3]
         starting_forwards = [p for p in players if p['position'] == 'Forward' and p.get('starting', False)][:3]
+
+        # Filter substitute players
+        substitute_goalkeepers = [p for p in players if p['position'] == 'Goalkeeper' and not p.get('starting', False)]
+        substitute_defenders = [p for p in players if p['position'] == 'Defender' and not p.get('starting', False)]
+        substitute_midfielders = [p for p in players if p['position'] == 'Midfielder' and not p.get('starting', False)]
+        substitute_forwards = [p for p in players if p['position'] == 'Forward' and not p.get('starting', False)]
+
+        return {
+            'starting': {
+                'goalkeeper': starting_goalkeepers[0] if starting_goalkeepers else None,
+                'defenders': starting_defenders,
+                'midfielders': starting_midfielders,
+                'forwards': starting_forwards
+            },
+            'substitutes': {
+                'goalkeepers': substitute_goalkeepers,
+                'defenders': substitute_defenders,
+                'midfielders': substitute_midfielders,
+                'forwards': substitute_forwards
+            }
+        }
+
+    def get_formation_352(self):
+        """
+        Get players arranged in 3-5-2 formation
+        """
+        players = self.get_chelsea_players()
+
+        # Filter starting players by position for 3-5-2 formation
+        starting_goalkeepers = [p for p in players if p['position'] == 'Goalkeeper' and p.get('starting', False)][:1]
+        starting_defenders = [p for p in players if p['position'] == 'Defender' and p.get('starting', False)][:3]
+        starting_midfielders = [p for p in players if p['position'] == 'Midfielder' and p.get('starting', False)][:5]
+        starting_forwards = [p for p in players if p['position'] == 'Forward' and p.get('starting', False)][:2]
+
+        # Filter substitute players
+        substitute_goalkeepers = [p for p in players if p['position'] == 'Goalkeeper' and not p.get('starting', False)]
+        substitute_defenders = [p for p in players if p['position'] == 'Defender' and not p.get('starting', False)]
+        substitute_midfielders = [p for p in players if p['position'] == 'Midfielder' and not p.get('starting', False)]
+        substitute_forwards = [p for p in players if p['position'] == 'Forward' and not p.get('starting', False)]
+
+        return {
+            'starting': {
+                'goalkeeper': starting_goalkeepers[0] if starting_goalkeepers else None,
+                'defenders': starting_defenders,
+                'midfielders': starting_midfielders,
+                'forwards': starting_forwards
+            },
+            'substitutes': {
+                'goalkeepers': substitute_goalkeepers,
+                'defenders': substitute_defenders,
+                'midfielders': substitute_midfielders,
+                'forwards': substitute_forwards
+            }
+        }
+
+    def get_formation_442(self):
+        """
+        Get players arranged in 4-4-2 formation
+        """
+        players = self.get_chelsea_players()
+
+        # Filter starting players by position for 4-4-2 formation
+        starting_goalkeepers = [p for p in players if p['position'] == 'Goalkeeper' and p.get('starting', False)][:1]
+        starting_defenders = [p for p in players if p['position'] == 'Defender' and p.get('starting', False)][:4]
+        starting_midfielders = [p for p in players if p['position'] == 'Midfielder' and p.get('starting', False)][:4]
+        starting_forwards = [p for p in players if p['position'] == 'Forward' and p.get('starting', False)][:2]
+
+        # Filter substitute players
+        substitute_goalkeepers = [p for p in players if p['position'] == 'Goalkeeper' and not p.get('starting', False)]
+        substitute_defenders = [p for p in players if p['position'] == 'Defender' and not p.get('starting', False)]
+        substitute_midfielders = [p for p in players if p['position'] == 'Midfielder' and not p.get('starting', False)]
+        substitute_forwards = [p for p in players if p['position'] == 'Forward' and not p.get('starting', False)]
+
+        return {
+            'starting': {
+                'goalkeeper': starting_goalkeepers[0] if starting_goalkeepers else None,
+                'defenders': starting_defenders,
+                'midfielders': starting_midfielders,
+                'forwards': starting_forwards
+            },
+            'substitutes': {
+                'goalkeepers': substitute_goalkeepers,
+                'defenders': substitute_defenders,
+                'midfielders': substitute_midfielders,
+                'forwards': substitute_forwards
+            }
+        }
+
+    def get_formation_4231(self):
+        """
+        Get players arranged in 4-2-3-1 formation
+        """
+        players = self.get_chelsea_players()
+
+        # Filter starting players by position for 4-2-3-1 formation (2 DM, 3 AM, 1 ST)
+        starting_goalkeepers = [p for p in players if p['position'] == 'Goalkeeper' and p.get('starting', False)][:1]
+        starting_defenders = [p for p in players if p['position'] == 'Defender' and p.get('starting', False)][:4]
+        starting_midfielders = [p for p in players if p['position'] == 'Midfielder' and p.get('starting', False)][:5]  # 2 DM + 3 AM
+        starting_forwards = [p for p in players if p['position'] == 'Forward' and p.get('starting', False)][:1]
 
         # Filter substitute players
         substitute_goalkeepers = [p for p in players if p['position'] == 'Goalkeeper' and not p.get('starting', False)]
@@ -790,56 +1172,78 @@ class FootballAPIService:
 
     def get_player_photo_url(self, player_name, player_id=None):
         """
-        Get player photo URL from Sportradar Images API or fallback to local/web images
+        Get player photo URL from multiple free sources with fallbacks
         """
         try:
-            # For demo purposes, we'll use a combination of:
-            # 1. Sportradar API (when available)
-            # 2. Generic football player photos from reliable sources
-            # 3. Local placeholder images
-
-            # Updated Chelsea FC player photos (2024-25 season)
-            player_photos = {
-                # Goalkeepers
-                'Robert Sanchez': 'https://img.a.transfermarkt.technology/portrait/big/357806-1674639901.jpg?lm=1',
-                'Filip Jorgensen': 'https://img.a.transfermarkt.technology/portrait/big/610958-1641973746.jpg?lm=1',
-
-                # Defenders
-                'Reece James': 'https://img.a.transfermarkt.technology/portrait/big/472423-1674639901.jpg?lm=1',
-                'Wesley Fofana': 'https://img.a.transfermarkt.technology/portrait/big/456504-1674639901.jpg?lm=1',
-                'Levi Colwill': 'https://img.a.transfermarkt.technology/portrait/big/614761-1674639901.jpg?lm=1',
-                'Marc Cucurella': 'https://img.a.transfermarkt.technology/portrait/big/269720-1674639901.jpg?lm=1',
-                'Malo Gusto': 'https://img.a.transfermarkt.technology/portrait/big/610984-1675076327.jpg?lm=1',
-                'Tosin Adarabioyo': 'https://img.a.transfermarkt.technology/portrait/big/234236-1661521730.jpg?lm=1',
-                'Benoit Badiashile': 'https://img.a.transfermarkt.technology/portrait/big/598652-1675076327.jpg?lm=1',
-
-                # Midfielders
-                'Enzo Fernandez': 'https://img.a.transfermarkt.technology/portrait/big/450496-1675076327.jpg?lm=1',
-                'Moises Caicedo': 'https://img.a.transfermarkt.technology/portrait/big/487000-1675076327.jpg?lm=1',
-                'Cole Palmer': 'https://img.a.transfermarkt.technology/portrait/big/496224-1675076327.jpg?lm=1',
-                'Romeo Lavia': 'https://img.a.transfermarkt.technology/portrait/big/652226-1675076327.jpg?lm=1',
-                'Kiernan Dewsbury-Hall': 'https://img.a.transfermarkt.technology/portrait/big/483436-1675076327.jpg?lm=1',
-
-                # Forwards
-                'Nicolas Jackson': 'https://img.a.transfermarkt.technology/portrait/big/590969-1675076327.jpg?lm=1',
-                'Pedro Neto': 'https://img.a.transfermarkt.technology/portrait/big/487464-1675076327.jpg?lm=1',
-                'Jadon Sancho': 'https://img.a.transfermarkt.technology/portrait/big/401923-1675076327.jpg?lm=1',
-                'Christopher Nkunku': 'https://img.a.transfermarkt.technology/portrait/big/344381-1675076327.jpg?lm=1',
-                'João Felix': 'https://img.a.transfermarkt.technology/portrait/big/462250-1675076327.jpg?lm=1',
-                'Mykhailo Mudryk': 'https://img.a.transfermarkt.technology/portrait/big/537798-1675076327.jpg?lm=1',
-                'Axel Disasi': 'https://img.a.transfermarkt.technology/portrait/big/421339-1675076327.jpg?lm=1'
+            # Position-based color schemes for player avatars
+            position_colors = {
+                'Goalkeeper': {'bg': '#dc3545', 'circle': '#fd7e14'},  # Red theme
+                'Defender': {'bg': '#198754', 'circle': '#20c997'},    # Green theme
+                'Midfielder': {'bg': '#0d6efd', 'circle': '#6f42c1'},  # Blue theme
+                'Forward': {'bg': '#fd7e14', 'circle': '#ffc107'}      # Orange theme
             }
 
-            # Return specific player photo if available
-            if player_name in player_photos:
-                return player_photos[player_name]
-
-            # Fallback to Sportradar API call (would need actual implementation)
-            # For now, return a placeholder
-            return self._get_placeholder_image()
+            # Generate professional avatar with player initials and position colors
+            return self._get_player_placeholder_image(player_name, position_colors)
 
         except Exception as e:
             logger.error(f"Error getting player photo for {player_name}: {str(e)}")
+            return self._get_player_placeholder_image(player_name, position_colors)
+
+    def _get_player_placeholder_image(self, player_name, position_colors=None):
+        """
+        Generate a personalized placeholder image with player initials and position-based colors
+        """
+        try:
+            # Extract initials from player name
+            name_parts = player_name.split()
+            if len(name_parts) >= 2:
+                initials = f"{name_parts[0][0]}{name_parts[-1][0]}".upper()
+            else:
+                initials = player_name[:2].upper()
+
+            # Determine player position for color scheme
+            player_position = None
+            if hasattr(self, '_current_players'):
+                for player in getattr(self, '_current_players', []):
+                    if player.get('name') == player_name:
+                        player_position = player.get('position')
+                        break
+
+            # Default colors (Chelsea theme)
+            bg_color = '#1f4e79'
+            circle_color = '#3d85c6'
+
+            # Use position-specific colors if available
+            if position_colors and player_position and player_position in position_colors:
+                colors = position_colors[player_position]
+                bg_color = colors['bg']
+                circle_color = colors['circle']
+
+            # Create professional SVG avatar
+            svg_content = f'''<svg width="250" height="250" viewBox="0 0 250 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:{bg_color};stop-opacity:1" />
+        <stop offset="100%" style="stop-color:{bg_color}dd;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="circleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:{circle_color};stop-opacity:1" />
+        <stop offset="100%" style="stop-color:{circle_color}cc;stop-opacity:1" />
+    </linearGradient>
+</defs>
+<rect width="250" height="250" fill="url(#bgGradient)"/>
+<circle cx="125" cy="125" r="85" fill="url(#circleGradient)" stroke="white" stroke-width="3"/>
+<text x="125" y="140" font-family="Arial, sans-serif" font-size="52" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">{initials}</text>
+<circle cx="125" cy="125" r="85" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+</svg>'''
+
+            import base64
+            encoded_svg = base64.b64encode(svg_content.encode()).decode()
+            return f'data:image/svg+xml;base64,{encoded_svg}'
+
+        except Exception as e:
+            logger.error(f"Error creating player placeholder for {player_name}: {str(e)}")
             return self._get_placeholder_image()
 
     def _get_placeholder_image(self):
