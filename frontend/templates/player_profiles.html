@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chelsea FC - Player Profiles & Management</title>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Player Profiles & Management - Chelsea FC Digital Twin{% endblock %}
+
+{% block extra_css %}
     <style>
         * {
             margin: 0;
@@ -296,8 +296,9 @@
             font-size: 1.2rem;
         }
     </style>
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
     <div class="container">
         <div class="header">
             <div class="header-content">
@@ -535,5 +536,4 @@
             document.getElementById('loading').style.display = 'none';
         }
     </script>
-</body>
-</html>
+{% endblock %}
