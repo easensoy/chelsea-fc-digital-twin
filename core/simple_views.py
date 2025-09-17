@@ -24,11 +24,11 @@ class DashboardView(TemplateView):
         return context
 
 class FootballFieldView(TemplateView):
-    template_name = 'football_field_demo.html'
+    template_name = 'formation_field.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Interactive Football Field'
+        context['title'] = 'Tactical Formation Analysis'
         return context
 
 class TeamManagementView(TemplateView):
@@ -77,10 +77,44 @@ def api_formation_433(request):
     formation = api_service.get_formation_433()
     return JsonResponse({'formation': formation})
 
+def api_formation_352(request):
+    """Get Chelsea players arranged in 3-5-2 formation"""
+    api_service = FootballAPIService()
+    formation = api_service.get_formation_352()
+    return JsonResponse({'formation': formation})
+
+def api_formation_442(request):
+    """Get Chelsea players arranged in 4-4-2 formation"""
+    api_service = FootballAPIService()
+    formation = api_service.get_formation_442()
+    return JsonResponse({'formation': formation})
+
+def api_formation_4231(request):
+    """Get Chelsea players arranged in 4-2-3-1 formation"""
+    api_service = FootballAPIService()
+    formation = api_service.get_formation_4231()
+    return JsonResponse({'formation': formation})
+
 class PlayerProfilesView(TemplateView):
     template_name = 'player_profiles.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Player Profiles & Management'
+        return context
+
+class MatchesView(TemplateView):
+    template_name = 'matches.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Matches & Fixtures'
+        return context
+
+class DataCentreView(TemplateView):
+    template_name = 'data-center.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Data Centre'
         return context
